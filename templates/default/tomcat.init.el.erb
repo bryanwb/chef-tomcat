@@ -1,0 +1,308 @@
+#!/bin/bash
+#
+# <%= @name %>      This shell script takes care of starting and stopping  <%= @name %>
+#
+# chkconfig: - 80 20
+#
+### BEGIN INIT INFO
+# Provides:  <%= @name %>
+# Required-Start: $network $syslog
+# Required-Stop: $network $syslog
+# Default-Start:
+# Default-Stop:
+# Description: Release implementation for Servlet JSP specifications
+# Short-Description: start and stop  <%= @name %>
+### END INIT INFO
+# 
+# - This is a shell script that is an unholy, but hopefully palatable,
+# - synthesis of Red Hat's init script for Tomcat6 and the 
+# - stock catalina.sh. It aims to keep to look as much as possible
+# - like catalina.sh while still working with the system v 
+# - init system  Bryan W. Berry (<bryan.berry@gmail.com>)
+#
+#
+
+DISTRIB_ID=`lsb_release -i -s 2>/dev/null`
+
+NAME="$(basename $0)"
+unset ISBOOT
+if [ "${NAME:0:1}" = "S" -o "${NAME:0:1}" = "K" ]; then
+    NAME="${NAME:3}"
+    ISBOOT="1"
+fi
+
+if [ -r "/etc/init.d/functions" ]; then
+   . /etc/init.d/functions
+fi
+
+
+# need to use runuser if selinux is turned on
+if [ -x "/usr/sbin/getsebool" ]; then
+    getsebool 2>&1 > /dev/null
+    exit_status=$!
+    if [ "$exit_status" = "0" ]; then
+	SU="/sbin/runuser - "
+    else
+	SU="/bin/su - "
+    fi
+else
+    SU="/bin/su - "
+fi
+
+# Define the tomcat username
+TOMCAT_USER="${TOMCAT_USER:-tomcat}"
+
+# Define path to run command that starts application from
+# some crappily written applications use hardcoded relative paths
+INVOKE_PATH=${INVOKE_PATH:-.}
+
+RETVAL="0"
+
+# Get instance specific config file, which is located per the debian convention
+if [ -r "/etc/default/${NAME}" ]; then
+    . /etc/default/${NAME}
+fi
+
+if [ -z "$CATALINA_BASE" ] ; then
+  CATALINA_BASE="$CATALINA_HOME"
+fi
+
+# set path to java binary command
+_RUNJAVA="$JAVA_HOME"/bin/java
+
+if [ "$CATALINA_BASE" != "$CATALINA_HOME" ] && [ -r "$CATALINA_BASE/bin/tomcat-juli.jar" ] ; then
+  CLASSPATH="$CLASSPATH""$CATALINA_BASE"/bin/tomcat-juli.jar:"$CATALINA_HOME"/bin/bootstrap.jar
+else
+  CLASSPATH="$CLASSPATH""$CATALINA_HOME"/bin/tomcat-juli.jar:"$CATALINA_HOME"/bin/bootstrap.jar
+fi
+
+if [ -z "$CATALINA_OUT" ] ; then
+  CATALINA_OUT="$CATALINA_BASE"/logs/catalina.out
+fi
+
+# Set juli LogManager config file if it is present and an override has not been issued
+if [ -z "$LOGGING_CONFIG" ]; then
+  if [ -r "$CATALINA_BASE"/conf/logging.properties ]; then
+    LOGGING_CONFIG="-Djava.util.logging.config.file=$CATALINA_BASE/conf/logging.properties"
+  else
+    # Bugzilla 45585
+    LOGGING_CONFIG="-Dnop"
+  fi
+fi
+
+if [ -z "$LOGGING_MANAGER" ]; then
+  JAVA_OPTS="$JAVA_OPTS -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager"
+else 
+  JAVA_OPTS="$JAVA_OPTS $LOGGING_MANAGER"
+fi
+
+have_tty=0
+if [ "`tty`" != "not a tty" ]; then
+    have_tty=1
+fi
+
+if [ $have_tty -eq 1 ]; then
+  echo "Using CATALINA_BASE:   $CATALINA_BASE"
+  echo "Using CATALINA_HOME:   $CATALINA_HOME"
+  echo "Using CATALINA_TMPDIR: $CATALINA_TMPDIR"
+  if [ "$1" = "debug" ] ; then
+    echo "Using JAVA_HOME:       $JAVA_HOME"
+  else
+    echo "Using JRE_HOME:        $JRE_HOME"
+  fi
+  echo "Using CLASSPATH:       $CLASSPATH"
+fi
+
+function start() {
+   
+  if [ ! -z "$CATALINA_PID" ]; then
+    if [ -f "$CATALINA_PID" ]; then
+      echo "PID file ($CATALINA_PID) found. Is Tomcat still running? Start aborted."
+      exit 1
+    fi
+  fi
+
+  shift
+
+  
+  $SU "$TOMCAT_USER" -c "touch $CATALINA_OUT"
+  touch "$CATALINA_PID"
+  chown "$TOMCAT_USER":"$TOMCAT_USER" "$CATALINA_PID"
+  run_java_cmd=$(cat <<EOF
+"$_RUNJAVA" "$LOGGING_CONFIG" $JAVA_OPTS \
+-Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" -classpath "$CLASSPATH" \
+-Dcatalina.base="$CATALINA_BASE" \
+-Dcatalina.home="$CATALINA_HOME" \
+-Djava.io.tmpdir="$CATALINA_TMPDIR" \
+org.apache.catalina.startup.Bootstrap "$@" start \
+>> "$CATALINA_OUT" 2>&1 &
+echo \$! > "$CATALINA_PID"
+EOF
+)
+
+  pushd $INVOKE_PATH 2>&1 > /dev/null
+  $SU "$TOMCAT_USER" -c "$run_java_cmd"
+  popd 2>&1 > /dev/null
+
+}
+
+function stop() {
+  SLEEP=5
+
+  if [ ! -z "$CATALINA_PID" ]; then
+    if [ -f "$CATALINA_PID" ]; then
+      kill -0 `cat $CATALINA_PID` >/dev/null 2>&1
+      if [ $? -gt 0 ]; then
+        echo "PID file ($CATALINA_PID) found but no matching process was found. Stop aborted."
+        exit 1
+      fi
+    else
+      echo "\$CATALINA_PID was set ($CATALINA_PID) but the specified file does not exist. Is Tomcat running? Assuming it has stopped and proceeding."
+      return 0
+    fi
+  fi
+  stop_java_cmd=$(cat <<EOF
+"$_RUNJAVA" $JAVA_OPTS \
+-Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" -classpath "$CLASSPATH" \
+-Dcatalina.base="$CATALINA_BASE" \
+-Dcatalina.home="$CATALINA_HOME" \
+-Djava.io.tmpdir="$CATALINA_TMPDIR" \
+org.apache.catalina.startup.Bootstrap "$@" stop 2>&1 > /dev/null
+EOF
+)
+
+  $SU "$TOMCAT_USER" -c "$stop_java_cmd"
+
+
+  if [ ! -z "$CATALINA_PID" ]; then
+    if [ -f "$CATALINA_PID" ]; then
+      while [ $SLEEP -ge 0 ]; do 
+        kill -0 `cat $CATALINA_PID` >/dev/null 2>&1
+        if [ $? -gt 0 ]; then
+          rm $CATALINA_PID
+          break
+        fi
+        if [ $SLEEP -gt 0 ]; then
+          sleep 1
+        fi
+        SLEEP=`expr $SLEEP - 1 `
+      done
+      # still not dead, we may need to resort to drastic measures
+      if [ -f "$CATALINA_PID" ]; then
+	  kill -0 `cat $CATALINA_PID` >/dev/null 2>&1
+	  if [ $? -eq 0 ]; then
+	      echo "Application still alive, sleeping for 20 seconds before sending SIGKILL"
+	      sleep 20
+	      kill -0 `cat $CATALINA_PID` >/dev/null 2>&1
+	      if [ $? -eq 0 ]; then
+		  kill -9 `cat $CATALINA_PID` >/dev/null 2>&1
+		  echo "Killed with extreme prejudice"
+	      else
+		  echo "Application stopped, no need to use SIGKILL"
+	      fi
+	      rm $CATALINA_PID
+	  fi
+      fi
+    fi
+  fi
+
+}
+
+function status()
+{
+   checkpidfile 
+   if [ "$RETVAL" -eq "0" ]; then
+      success "${NAME} (pid ${kpid}) is running..."
+   elif [ "$RETVAL" -eq "1" ]; then
+      failure "PID file exists, but process is not running"
+   else 
+      pid="$(/usr/bin/pgrep -d , -u ${TOMCAT_USER} -G ${TOMCAT_USER} java)"
+      if [ -z "$pid" ]; then
+	  success "${NAME} is stopped"
+	  RETVAL="3"
+      else
+	  success "${NAME} (pid $pid) is running..."
+	  RETVAL="0"
+      fi
+   fi
+  
+}
+
+function version()
+{
+
+    version_java_cmd=$(cat <<EOF
+"$_RUNJAVA"   \
+-classpath "$CATALINA_HOME/lib/catalina.jar" \
+org.apache.catalina.util.ServerInfo
+EOF
+)
+  $SU "$TOMCAT_USER" -c "$version_java_cmd"
+
+}
+
+function checkpidfile()
+{
+   if [ -f "$CATALINA_PID" ]; then
+      read kpid < "$CATALINA_PID"
+      if [ -d "/proc/${kpid}" ]; then
+# The pid file exists and the process is running
+          RETVAL="0"
+      else
+# The pid file exists but the process is not running
+         RETVAL="1"
+         return
+      fi
+   fi
+# pid file does not exist and program is not running
+   RETVAL="3"
+}
+
+
+
+function usage()
+{
+   echo "Usage: $0 {start|stop|restart|condrestart|try-restart|reload|force-reload|status|version}"
+   RETVAL="2"
+}
+
+# See how we were called.
+RETVAL="0"
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    condrestart|try-restart)
+        if [ -f "$CATALINA_PID" ]; then
+            stop
+            start
+        fi
+        ;;
+    reload)
+        RETVAL="3"
+        ;;
+    force-reload)
+        if [ -f "$CATALINA_PID" ]; then
+            stop
+            start
+        fi
+        ;;
+    status)
+        status
+        ;;
+    version)
+        version
+        ;;
+    *)
+      usage
+      ;;
+esac
+
+exit $RETVAL

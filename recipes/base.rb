@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: tomcat
-# Recipe:: default
+# Recipe:: ark_base
 # Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
 # Copyright 2010, Opscode, Inc.
 # Copyright 2012, Bryan W. Berry
@@ -18,12 +18,20 @@
 # limitations under the License.
 #
 
-include_recipe "java"
+version = node['tomcat']['version'].to_s
 
-case node.platform
-when "centos","redhat","fedora"
-  include_recipe "tomcat::ark"
-when "debian","ubuntu"
-  include_recipe "tomcat::package"
+# the sysv init script requires an additional package
+if platform? [ "centos","redhat","fedora"]
+#  package "redhat-lsb"
+  distro = "el"
 end
 
+user node['tomcat']['user']
+
+ark "tomcat#{version}" do
+  url node['tomcat'][version]['url']
+  checksum node['tomcat'][version]['checksum']
+  version node['tomcat']['version']
+  path "#{node['tomcat']['prefix_dir']}/tomcat"
+  home_dir "#{node['tomcat']['prefix_dir']}/tomcat/default"
+end  

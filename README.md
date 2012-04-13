@@ -1,52 +1,136 @@
 Description
 ===========
 
-Installs and configures Tomcat version 6, Java servlet engine and webserver.
+Installs and configures the Tomcat, Java servlet engine and webserver.
+
 
 Requirements
 ============
 
-Platform:
+Platform: 
 
-* Debian, Ubuntu (OpenJDK, Oracle)
-* CentOS 6+, Red Hat 6+, Fedora (OpenJDK, Oracle)
+* CentOS, Red Hat, Fedora (OpenJDK)
 
 The following Opscode cookbooks are dependencies:
 
 * java
 
+
 Attributes
 ==========
 
-* `node["tomcat"]["port"]` - The network port used by Tomcat's HTTP connector, default `8080`.
-* `node["tomcat"]["ssl_port"]` - The network port used by Tomcat's SSL HTTP connector, default `8443`.
-* `node["tomcat"]["ajp_port"]` - The network port used by Tomcat's AJP connector, default `8009`.
-* `node["tomcat"]["java_options"]` - Extra options to pass to the JVM, default `-Xmx128M -Djava.awt.headless=true`.
-* `node["tomcat"]["use_security_manager"]` - Run Tomcat under the Java Security Manager, default `false`.
+* prefix_dir - /usr/local/, /var/lib/, etc.
 
-Usage
-=====
+Recipes
+=======
 
-Simply include the recipe where you want Tomcat installed.
+* default.rb -- installs tomcat via debian package only on a
+debian based distribution. Otherwise installs via tomcat7_binary.rb
+* package.rb -- installs tomcat7 unless node['tomcat']['version'] set
+to 6. The package typically installs a system service.
+* ark.rb installs a vanilla tomcat and creates a service
+* base.rb  installs the tomcat from the binary provided by
+tomcat.apache.org, will use version 7 unless node['tomcat']['version'] set
+to 6. No tomcat service is installed.
 
-Due to the ways that some system init scripts call the configuration,
-you may wish to set the java options to include `JAVA_OPTS`. As an
-example for a java app server role:
+All of the default webapps such as "ROOT" and "manager" are removed in the tomcat::ark recipe
 
-    name "java-app-server"
-    run_list("recipe[tomcat]")
-    override_attributes(
-      'tomcat' => {
-        'java_options' => "${JAVA_OPTS} -Xmx128M -Djava.awt.headless=true"
-      }
-    )
+ark
+---
+
+This recipe creates a vanilla tomcat installation based on the tarball
+of bytecode available from http://tomcat.apache.org and places it in 
+${prefix_dir}. Additionally, it configures a system v
+init script and creates the symlink
+
+    ${prefix_dir}/tomcat/default -> ${prefix_dir}/tomcat/tomcat{6,7}
+
+
+base
+----
+
+It creates an installation of tomcat to prefix_dir. It does very
+little besides that.
+
+By default it uses the tomcat 7 by including tomcat7 recipe
+
+This recipe is intended to be used together with the CATALINA_BASE method to install
+multiple tomcat instances that use the same set of tomcat installation
+files. This recipe does not add any services. It is intended to be used together with the tomcat lwrp.
+
+    ${prefix_dir}/tomcat/tomcat{6,7}  # CATALINA_HOME
+
+and creates a symlink to that directory
+
+    ${prefix_dir}/tomcat/default -> ${prefix_dir}/tomcat/tomcat{6,7}
+
+
+
+Resources/Providers
+===================
+
+tomcat
+
+# Actions
+
+- :install: install
+- :remove: remove the instance
+- :webapps: returns location of the webapps directory, typically for
+  use with a deploy or maven lwrp (coming soon)
+
+# Attribute Parameters
+
+- http_port: port_num or true/false, default to true and 8080
+- ajp_port:  port_num or true/false, default to true and 8009
+- shutdown_port: port_num or true/false, default to 8005
+- host_name: name for Host element, defaults to localhost
+- unpack_wars: defaults to true
+- auto_deploy: defaults to true
+- jvm_opts: Array of options for the JVM
+- jmx_opts: Array of JMX monitoring options
+- webapp_opts: Array of directives passed to a webapp
+- more_opts: crap that doesn't fit anywhere else
+- env: environment variables to export in init script
+- user: user to run the tomcat as
+
+
+An exception will be thrown if one of the values specified by *_port
+is already in use by another tomcat lwrp
+
+All *_OPTS attributes are combined into the environment variable JAVA_OPTS.
+Duplicate options are removed.
+
+# Example
+
+    tomcat "pentaho" do
+      http_port  false
+      https_port "8443"
+      version    "7"
+    end
+
+To deploy a webapp to the new tomcat, you use a deploy resource or a
+maven resource (coming soon).
+
+# Example
+
+   deploy "pentaho" do  
+     deploy_root tomcat['pentaho']['webapps']
+     repository "github.com/bryanwb/pentaho.git"
+     revision   "1.0.2"
+     restart_command tomcat['pentaho'] :restart
+   end
+
+
+TODO
+====
+
 
 License and Author
 ==================
 
-Author:: Seth Chisamore (<schisamo@opscode.com>)
+Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
 
-Copyright:: 2010-2012, Opscode, Inc
+Copyright:: 2012, Bryan W. Berry
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
