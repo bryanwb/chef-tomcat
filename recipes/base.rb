@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: tomcat
-# Recipe:: ark_base
+# Recipe:: base
 # Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
 # Copyright 2010, Opscode, Inc.
 # Copyright 2012, Bryan W. Berry
