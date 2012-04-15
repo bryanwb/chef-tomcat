@@ -20,7 +20,7 @@ t = tomcat node['tomcat']['user'] do
 end
 
 maven node['tomcat']['jdbc']['driver']['name'] do
-  groupId node['tomcat']['jdbc']['driver']['name'] 
+  group_id node['tomcat']['jdbc']['driver']['name'] 
   version  node['tomcat']['jdbc']['driver']['version']
   dest "#{t.base}/lib"
   owner node['tomcat']['user']
