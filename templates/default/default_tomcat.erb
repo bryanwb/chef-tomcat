@@ -21,9 +21,6 @@ export <%= envvar %>
 
 JAVA_ENDORSED_DIRS="$CATALINA_HOME/endorsed"
 
-# Use a CMS garbage collector for improved response time
-JAVA_OPTS="${JAVA_OPTS} -XX:+UseConcMarkSweepGC"
-
 # Use the Java security manager? (yes/no, default: no)
 TOMCAT6_SECURITY=<%= @tomcat["use_security_manager"] ? "yes" : "no" %>
 

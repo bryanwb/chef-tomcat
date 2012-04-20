@@ -70,7 +70,7 @@ shutdown="SHUTDOWN">
          APR (HTTP/AJP) Connector: /docs/apr.html
          Define a non-SSL HTTP/1.1 Connector on port 8080
     -->
-    <Connector port="<%= @tomcat["port"].to_s %>"
+    <Connector port="<%= @tomcat["http_port"].to_s %>"
               protocol="HTTP/1.1" 
               connectionTimeout="20000" 
                URIEncoding="UTF-8"

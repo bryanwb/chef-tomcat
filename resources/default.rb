@@ -25,7 +25,7 @@ attr_accessor :unpack_wars, :auto_deploy, :jvm_opts, :jmx_opts, :webapp_opts
 attr_accessor :more_opts, :user, :context_dir, :log_dir, :tmp_dir, :work_dir
 attr_accessor :webapp_dir, :base, :pid_file, :use_security_manager, :group
 
-attribute :port, :kind_of => Integer, :default => 8080
+attribute :http_port, :kind_of => Integer, :default => 8080
 attribute :ajp_port, :kind_of => Integer, :default => 8009
 attribute :ssl_port, :kind_of => Integer, :default => 8443
 attribute :shutdown_port, :kind_of => Integer, :default => 8005

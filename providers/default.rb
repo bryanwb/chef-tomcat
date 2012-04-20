@@ -40,7 +40,7 @@ def get_resource_hash(resource)
   resource_h['use_security_manager'] = node['tomcat']['use_security_manager']
   resource_h['user'] = resource.user
   resource_h['group'] = resource.user
-  resource_h['port'] = resource.port
+  resource_h['http_port'] = resource.http_port
   resource_h['ajp_port'] = resource.ajp_port
   resource_h['ssl_port'] = resource.ssl_port
   resource_h['shutdown_port'] = resource.shutdown_port
