@@ -147,7 +147,7 @@ EOF
 }
 
 function stop() {
-  SLEEP=5
+  SHUTDOWN_WAIT=5
 
   if [ ! -z "$CATALINA_PID" ]; then
     if [ -f "$CATALINA_PID" ]; then
@@ -176,16 +176,16 @@ EOF
 
   if [ ! -z "$CATALINA_PID" ]; then
     if [ -f "$CATALINA_PID" ]; then
-      while [ $SLEEP -ge 0 ]; do 
+      while [ $SHUTDOWN_WAIT -ge 0 ]; do 
         kill -0 `cat $CATALINA_PID` >/dev/null 2>&1
         if [ $? -gt 0 ]; then
           rm $CATALINA_PID
           break
         fi
-        if [ $SLEEP -gt 0 ]; then
+        if [ $SHUTDOWN_WAIT -gt 0 ]; then
           sleep 1
         fi
-        SLEEP=`expr $SLEEP - 1 `
+        SHUTDOWN_WAIT=`expr $SHUTDOWN_WAIT - 1 `
       done
       # still not dead, we may need to resort to drastic measures
       if [ -f "$CATALINA_PID" ]; then

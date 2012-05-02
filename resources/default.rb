@@ -23,7 +23,7 @@ actions :install, :remove, :restart, :start
 attr_accessor :port, :ajp_port, :ssl_port, :shutdown_port, :host_name
 attr_accessor :unpack_wars, :auto_deploy, :jvm_opts, :jmx_opts, :webapp_opts
 attr_accessor :more_opts, :user, :context_dir, :log_dir, :tmp_dir, :work_dir
-attr_accessor :webapp_dir, :base, :pid_file, :use_security_manager, :group
+attr_accessor :webapp_dir, :base, :pid_file, :use_security_manager, :group, :shutdown_wait
 
 attribute :http_port, :kind_of => Integer, :default => 8080
 attribute :ajp_port, :kind_of => Integer, :default => 8009
@@ -38,6 +38,7 @@ attribute :webapp_opts, :kind_of => Array, :default => []
 attribute :more_opts, :kind_of => Array, :default => []
 attribute :env, :kind_of => Array, :default => []
 attribute :user, :kind_of => String, :required => true
+attribute :shutdown_wait, :kind_of => String, :default => "5"
   
 # we have to set default for the supports attribute
 # in initializer since it is a 'reserved' attribute name

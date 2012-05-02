@@ -92,6 +92,8 @@ tomcat
 - more_opts: crap that doesn't fit anywhere else
 - env: environment variables to export in init script
 - user: user to run the tomcat as
+- shutdown_wait: how long the shutdown script should wait before
+  killing the process
 
 
 An exception will be thrown if one of the values specified by *_port

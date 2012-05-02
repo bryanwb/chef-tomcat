@@ -51,7 +51,7 @@ def get_resource_hash(resource)
   resource_h['unpack_wars'] = resource.unpack_wars
   resource_h['auto_deploy'] = resource.auto_deploy
   resource_h['env'] = resource.env
-  
+  resource_h['shutdown_wait'] = resource.shutdown_wait
   resource_h
 end
   

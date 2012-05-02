@@ -18,6 +18,8 @@
 # limitations under the License.
 #
 
+include_recipe "ark"
+
 version = node['tomcat']['version'].to_s
 
 # the sysv init script requires an additional package
@@ -28,10 +30,11 @@ end
 
 user node['tomcat']['user']
 
-ark "tomcat#{version}" do
+ark "tomcat" do
   url node['tomcat'][version]['url']
   checksum node['tomcat'][version]['checksum']
   version node['tomcat']['version']
-  path "#{node['tomcat']['prefix_dir']}/tomcat"
+  prefix_root "#{node['tomcat']['prefix_dir']}/tomcat"
   home_dir "#{node['tomcat']['prefix_dir']}/tomcat/default"
+  owner 
 end  
