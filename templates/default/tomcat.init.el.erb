@@ -115,12 +115,20 @@ fi
 
 function start() {
    
-  if [ ! -z "$CATALINA_PID" ]; then
-    if [ -f "$CATALINA_PID" ]; then
-      echo "PID file ($CATALINA_PID) found. Is Tomcat still running? Start aborted."
-      exit 1
+    if [ -f $CATALINA_PID ]; then
+        echo -e "\033[31;1mPID file found in $CATALINA_PID, already running?\033[0m"
+        tomcat_pid="$(cat $CATALINA_PID)"
+        pid_running="$( ps ax | grep 'java' | grep $tomcat_pid )"
+
+        if [ ! -z "$pid_running" ] ; then 
+	    echo -e "\033[31;1mPID $tomcat_pid still alive, tomcat is already running. Doing nothing\033[0m"
+	    return 1
+        else
+            echo -e "\033[1mPid $tomcat_pid is not running, proceeding normally\033[0m"
+        fi
     fi
-  fi
+
+
 
   shift
 
