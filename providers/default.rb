@@ -112,8 +112,12 @@ action :install do
     mode "0644"
     action :nothing
   end
-  t_default.run_action(:create)
-
+  
+  if new_resource.manage_config_file
+    t_default.run_action(:create)
+  else
+    t_default.run_action(:create_if_missing) 
+  end
   
   t_server_xml = template "#{resource_h['base']}/conf/server.xml" do
     cookbook "tomcat"
@@ -124,8 +128,13 @@ action :install do
     mode "0644"
     action :nothing
   end
-  t_server_xml.run_action(:create)
-
+  
+  if new_resource.manage_config_file
+    t_server_xml.run_action(:create) 
+  else
+    t_server_xml.run_action(:create_if_missing) 
+  end
+  
   s = service resource_h['name'] do
     service_name resource_h['name']
     supports :restart => true, :reload => true, :status => true
