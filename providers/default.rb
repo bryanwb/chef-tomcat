@@ -25,128 +25,101 @@ def get_distro
   end
 end
 
-def get_resource_hash(resource)
-  require 'pathname'
-  resource_h = Hash.new
-  resource_h['name'] = resource.name
-  resource_h['home'] = node['tomcat']['home']
-  resource_h['base'] = resource.base
-  resource_h['context_dir'] = "#{resource_h['base']}/conf/Catalina/localhost"
-  resource_h['log_dir'] = "#{resource_h['base']}/logs"
-  resource_h['tmp_dir'] = "#{resource_h['base']}/temp"
-  resource_h['work_dir'] = "#{resource_h['base']}/work"
-  resource_h['webapp_dir'] = "#{resource_h['base']}/webapps"
-  resource_h['pid_file'] = "#{resource_h['name']}.pid"
-  resource_h['use_security_manager'] = node['tomcat']['use_security_manager']
-  resource_h['user'] = resource.user
-  resource_h['group'] = resource.user
-  resource_h['http_port'] = resource.http_port
-  resource_h['ajp_port'] = resource.ajp_port
-  resource_h['ssl_port'] = resource.ssl_port
-  resource_h['shutdown_port'] = resource.shutdown_port
-  resource_h['jvm_opts'] = resource.jvm_opts
-  resource_h['jmx_opts'] = resource.jmx_opts
-  resource_h['webapp_opts'] = resource.webapp_opts
-  resource_h['more_opts'] = resource.more_opts
-  resource_h['unpack_wars'] = resource.unpack_wars
-  resource_h['auto_deploy'] = resource.auto_deploy
-  resource_h['env'] = resource.env
-  resource_h['shutdown_wait'] = resource.shutdown_wait
-  resource_h
+def update_resource_params(resource)
+  resource.params['context_dir'] = "#{resource.base}/conf/Catalina/localhost"
+  resource.params['log_dir'] = "#{resource.base}/logs"
+  resource.params['tmp_dir'] = "#{resource.base}/temp"
+  resource.params['work_dir'] = "#{resource.base}/work"
+  resource.params['webapp_dir'] = "#{resource.base}/webapps"
+  resource.params['pid_file'] = "#{resource.name}.pid"
+  resource.params['use_security_manager'] = node['tomcat']['use_security_manager']
 end
   
 action :install do
   distro = get_distro
-  # I create a new hash of the attributes because new_resource.to_hash
-  # causes bizarre errors
-  resource_h = get_resource_hash new_resource
+  update_resource_params new_resource
 
-  d = directory resource_h['base'] do
-    owner resource_h['user']
-    group resource_h['user']
+  directory new_resource.base do
+    owner new_resource.user
+    group new_resource.user
     mode 0775
-    action :nothing
+    action :create
   end
-  d.run_action(:create)
   
   %w{ conf lib logs server shared temp webapps work }.each do |dir|
-    d = directory "#{resource_h['base']}/#{dir}" do
-      owner resource_h['user']
-      group resource_h['user']
+    directory "#{new_resource.base}/#{dir}" do
+      owner new_resource.user
+      group new_resource.user
       recursive true
       mode 0775
-      action :nothing
+      action :create
     end
-    d.run_action(:create)
   end
 
   # don't have a need yet to template these files
   %w{ catalina.policy catalina.properties logging.properties context.xml web.xml tomcat-users.xml }.each do |file|
-    ckbk_f = cookbook_file "#{resource_h['base']}/conf/#{file}" do
+    cookbook_file "#{new_resource.base}/conf/#{file}" do
       cookbook "tomcat"
       source file
-      owner resource_h['user']
-      action :nothing
+      owner new_resource.user
+      action :create
     end
-    ckbk_f.run_action(:create)
   end
   
-  t_init = template "/etc/init.d/#{resource_h['name']}" do
+  template "/etc/init.d/#{new_resource.name}" do
     cookbook "tomcat"
-    path "/etc/init.d/#{resource_h['name']}"
+    path "/etc/init.d/#{new_resource.name}"
     source "tomcat.init.#{distro}.erb"
     owner "root"
     group "root"
     mode "0774"
-    variables( :name => resource_h['name'] )
-    action :nothing
+    variables( :name => new_resource.name )
+    action :create
   end
-  t_init.run_action(:create)
   
-  t_default = template "/etc/default/#{resource_h['name']}" do
+  template "/etc/default/#{new_resource.name}" do
     cookbook "tomcat"
     source "default_tomcat.erb"
     owner "root"
-    group "root"
-    variables(:tomcat => resource_h)
-    mode "0644"
-    action :nothing
+    group "#{new_resource.user}"
+    variables(:tomcat => new_resource)
+    mode "0664"
+    if new_resource.manage_config_file
+      action :create
+    else
+      action :create_if_missing
+    end
   end
   
-  if new_resource.manage_config_file
-    t_default.run_action(:create)
-  else
-    t_default.run_action(:create_if_missing) 
-  end
-  
-  t_server_xml = template "#{resource_h['base']}/conf/server.xml" do
+  template "#{new_resource.base}/conf/server.xml" do
     cookbook "tomcat"
     source "server.tomcat#{node['tomcat']['version']}.xml.erb"
-    owner "#{resource_h['user']}"
-    group "#{resource_h['user']}"
-    variables(:tomcat => resource_h)
+    owner "#{new_resource.user}"
+    group "#{new_resource.user}"
+    variables(:tomcat => new_resource)
     mode "0644"
-    action :nothing
+    if new_resource.manage_config_file
+      action :create
+    else
+      action :create_if_missing
+    end
   end
   
-  if new_resource.manage_config_file
-    t_server_xml.run_action(:create) 
-  else
-    t_server_xml.run_action(:create_if_missing) 
-  end
-  
-  s = service resource_h['name'] do
-    service_name resource_h['name']
+  service new_resource.name do
+    service_name new_resource.name
     supports :restart => true, :reload => true, :status => true
-    action :nothing
     subscribes :restart, resources( :template =>
                                    [
-                                    "#{resource_h['base']}/conf/server.xml",
-                                    "/etc/default/#{resource_h['name']}",
-                                    "/etc/init.d/#{resource_h['name']}"
+                                    "#{new_resource.base}/conf/server.xml",
+                                    "/etc/default/#{new_resource.name}",
+                                    "/etc/init.d/#{new_resource.name}"
                                    ])
+    if new_resource.clustered
+      action :nothing
+    else
+      action :enable
+    end
   end
-  s.run_action( :enable )
 
   new_resource.updated_by_last_action(true)
 end
