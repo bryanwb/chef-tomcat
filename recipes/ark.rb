@@ -25,7 +25,6 @@ distro = "debian"
 
 # the sysv init script requires an additional package
 if platform? [ "centos","redhat","fedora"]
-#  package "redhat-lsb"  
   distro = "el"
 end
 
@@ -34,27 +33,29 @@ user node['tomcat']['user']
 ark "tomcat#{version}" do
   url node['tomcat'][version]['url']
   checksum node['tomcat'][version]['checksum']
-  version '7.0.25'
+  version node['tomcat']['version']
   path  "/usr/local/tomcat"
   home_dir "#{node['tomcat']['home']}"
   owner node['tomcat']['user']
 end
 
-t_init = template "tomcat#{version}" do
+template "tomcat#{version}" do
   path "/etc/init.d/tomcat#{version}"
   source "tomcat.init.#{distro}.erb"
   owner "root"
   group "root"
   mode "0774"
   variables( :name => "tomcat#{version}")
+  notifies :restart, resources(:service => "tomcat")
 end
 
-t_default = template "/etc/default/tomcat#{version}" do
+template "/etc/default/tomcat#{version}" do
   source "default_tomcat.erb"
   owner "root"
   group "root"
   variables(:tomcat => node['tomcat'].to_hash)
   mode "0644"
+  notifies :restart, resources(:service => "tomcat")
 end
 
 service "tomcat" do
@@ -62,8 +63,3 @@ service "tomcat" do
   supports :restart => true, :reload => true, :status => true
   action [:enable, :start]
 end
-
-# we can't notify a service until after it has been created
-t_init.notifies :restart, resources(:service => "tomcat")
-t_default.notifies :restart, resources(:service => "tomcat")
-
