@@ -38,7 +38,7 @@ fi
 
 # need to use runuser if selinux is turned on
 if [ -x "/usr/sbin/getsebool" ]; then
-    getsebool 2>&1 > /dev/null
+    getsebool  > /dev/null  2>&1
     exit_status=$!
     if [ "$exit_status" = "0" ]; then
 	SU="/sbin/runuser - "
@@ -101,19 +101,24 @@ if [ "`tty`" != "not a tty" ]; then
     have_tty=1
 fi
 
-if [ $have_tty -eq 1 ]; then
-  echo "Using CATALINA_BASE:   $CATALINA_BASE"
-  echo "Using CATALINA_HOME:   $CATALINA_HOME"
-  echo "Using CATALINA_TMPDIR: $CATALINA_TMPDIR"
-  if [ "$1" = "debug" ] ; then
-    echo "Using JAVA_HOME:       $JAVA_HOME"
-  else
-    echo "Using JRE_HOME:        $JRE_HOME"
-  fi
-  echo "Using CLASSPATH:       $CLASSPATH"
-fi
+function echo_params(){
+
+    if [ $have_tty -eq 1 ]; then
+        echo "Using CATALINA_BASE:   $CATALINA_BASE"
+        echo "Using CATALINA_HOME:   $CATALINA_HOME"
+        echo "Using CATALINA_TMPDIR: $CATALINA_TMPDIR"
+        if [ "$1" = "debug" ] ; then
+            echo "Using JAVA_HOME:       $JAVA_HOME"
+        else
+            echo "Using JRE_HOME:        $JRE_HOME"
+        fi
+        echo "Using CLASSPATH:       $CLASSPATH"
+    fi
+
+}
 
 function start() {
+    echo_params
    
     if [ -f $CATALINA_PID ]; then
         echo -e "\033[31;1mPID file found in $CATALINA_PID, already running?\033[0m"
@@ -142,6 +147,7 @@ function start() {
 -Dcatalina.base="$CATALINA_BASE" \
 -Dcatalina.home="$CATALINA_HOME" \
 -Djava.io.tmpdir="$CATALINA_TMPDIR" \
+"$JMX_OPTS" \
 org.apache.catalina.startup.Bootstrap "$@" start \
 >> "$CATALINA_OUT" 2>&1 &
 echo \$! > "$CATALINA_PID"
@@ -155,7 +161,11 @@ EOF
 }
 
 function stop() {
-  SHUTDOWN_WAIT=5
+  echo_params
+
+  if [ -z $SHUTDOWN_WAIT ] ; then
+      SHUTDOWN_WAIT=5
+  fi
 
   if [ ! -z "$CATALINA_PID" ]; then
     if [ -f "$CATALINA_PID" ]; then
