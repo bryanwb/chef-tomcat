@@ -20,7 +20,7 @@
 
 actions :install, :remove, :restart, :start
 
-attr_accessor :service_name, :clustered, 
+attr_accessor :service_name, :clustered 
 attr_accessor :port, :ajp_port, :ssl_port, :shutdown_port, :host_name
 attr_accessor :unpack_wars, :auto_deploy, :jvm_opts, :jmx_opts, :webapp_opts, :jmx_access, :jmx_access_file, :jmx_password
 attr_accessor :more_opts, :user, :context_dir, :log_dir, :tmp_dir, :work_dir, :manage_config_file

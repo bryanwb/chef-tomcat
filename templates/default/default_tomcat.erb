@@ -15,7 +15,7 @@ CATALINA_PID="/var/run/<%= @tomcat.params["pid_file"] %>"
 JAVA_OPTS="<%= @tomcat.jvm_opts.join(' ') + 
  @tomcat.webapp_opts.join(' ') + " " +
  @tomcat.more_opts.join(' ') %>"
-JMX_OPTS=" @tomcat.jmx_opts.join(' ')  " 
+JMX_OPTS="<%= @tomcat.jmx_opts.join(' ') %>" 
 
 <% @tomcat.env.each do |envvar| -%>
 export <%= envvar %>
