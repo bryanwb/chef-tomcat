@@ -107,11 +107,7 @@ function echo_params(){
         echo "Using CATALINA_BASE:   $CATALINA_BASE"
         echo "Using CATALINA_HOME:   $CATALINA_HOME"
         echo "Using CATALINA_TMPDIR: $CATALINA_TMPDIR"
-        if [ "$1" = "debug" ] ; then
-            echo "Using JAVA_HOME:       $JAVA_HOME"
-        else
-            echo "Using JRE_HOME:        $JRE_HOME"
-        fi
+        echo "Using JAVA_HOME:       $JAVA_HOME"
         echo "Using CLASSPATH:       $CLASSPATH"
     fi
 
@@ -147,7 +143,7 @@ function start() {
 -Dcatalina.base="$CATALINA_BASE" \
 -Dcatalina.home="$CATALINA_HOME" \
 -Djava.io.tmpdir="$CATALINA_TMPDIR" \
-"$JMX_OPTS" \
+$JMX_OPTS \
 org.apache.catalina.startup.Bootstrap "$@" start \
 >> "$CATALINA_OUT" 2>&1 &
 echo \$! > "$CATALINA_PID"
@@ -161,7 +157,6 @@ EOF
 }
 
 function stop() {
-  echo_params
 
   if [ -z $SHUTDOWN_WAIT ] ; then
       SHUTDOWN_WAIT=5
