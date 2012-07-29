@@ -35,7 +35,7 @@ ark "tomcat#{version}" do
   checksum node['tomcat'][version]['checksum']
   version node['tomcat']['version']
   path  "/usr/local/tomcat"
-  home_dir "#{node['tomcat']['home']}"
+  home_dir node['tomcat']['home']
   owner node['tomcat']['user']
 end
 

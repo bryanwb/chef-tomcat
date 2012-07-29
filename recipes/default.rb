@@ -20,10 +20,9 @@
 
 include_recipe "java"
 
-case node.platform
-when "centos","redhat","fedora"
-  include_recipe "tomcat::ark"
-when "debian","ubuntu"
+if platform_family?("debian")
   include_recipe "tomcat::package"
+else
+  include_recipe "tomcat::ark"
 end
 

@@ -8,9 +8,9 @@ ruby_block "load jdbc parameters" do
     node['tomcat']['jdbc']['user'] = db['jdbc']['user']
     node['tomcat']['jdbc']['host'] = db['jdbc']['host']
     jdbc_url = "jdbc:#{node['tomcat']['jdbc']['driver']['name']}://" +
-      "#{node['tomcat']['jdbc']['host']}:" +
-      "#{node['tomcat']['jdbc']['port']}/" +
-      "#{node['tomcat']['jdbc']['schema']}" 
+      node['tomcat']['jdbc']['host'] + ":" +
+      node['tomcat']['jdbc']['port'] + "/" +
+      node['tomcat']['jdbc']['schema'] 
     node['tomcat']['jdbc']['url'] = jdbc_url
   end
 end
