@@ -22,11 +22,10 @@ actions :install, :remove, :restart, :start
 
 attr_accessor :service_name, :clustered 
 attr_accessor :port, :ajp_port, :ssl_port, :shutdown_port, :host_name
-attr_accessor :unpack_wars, :auto_deploy, :jvm_opts, :jmx_opts, :webapp_opts, :jmx_access, :jmx_access_file, :jmx_password
+attr_accessor :unpack_wars, :auto_deploy, :jvm_opts, :jmx_opts, :webapp_opts
+attr_accessor  :jmx_access, :jmx_access_file, :jmx_password_file, :jmx_password
 attr_accessor :more_opts, :user, :context_dir, :log_dir, :tmp_dir, :work_dir, :manage_config_file
 attr_accessor :webapp_dir, :base, :pid_file, :use_security_manager, :group, :shutdown_wait
-
-
 
 attribute :service_name, :kind_of => String, :name_attribute => true
 attribute :clustered, :equal_to => [true, false], :default => false
@@ -41,6 +40,7 @@ attribute :jvm_opts, :kind_of => Array, :default => ["-Djava.awt.headless=true",
 attribute :jmx_opts, :kind_of => Array, :default => []
 attribute :jmx_access, :kind_of => String, :default => ""
 attribute :jmx_access_file, :kind_of => String, :default => ""
+attribute :jmx_password_file, :kind_of => String, :default => ""
 attribute :jmx_password, :kind_of => String, :default => ""
 attribute :webapp_opts, :kind_of => Array, :default => []
 attribute :more_opts, :kind_of => Array, :default => []

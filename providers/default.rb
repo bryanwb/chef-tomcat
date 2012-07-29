@@ -57,10 +57,10 @@ action :install do
   end
 
   # don't have a need yet to template these files
-  %w{ catalina.policy catalina.properties logging.properties context.xml web.xml tomcat-users.xml }.each do |file|
-    cookbook_file "#{new_resource.base}/conf/#{file}" do
+  %w{ catalina.policy catalina.properties logging.properties context.xml web.xml tomcat-users.xml }.each do |tc_file|
+    cookbook_file "#{new_resource.base}/conf/#{tc_file}" do
       cookbook "tomcat"
-      source file
+      source tc_file
       owner new_resource.user
       action :create
     end
@@ -68,7 +68,6 @@ action :install do
   
   template "/etc/init.d/#{new_resource.name}" do
     cookbook "tomcat"
-    path "/etc/init.d/#{new_resource.name}"
     source "tomcat.init.#{distro}.erb"
     owner "root"
     group "root"
@@ -76,12 +75,12 @@ action :install do
     variables( :name => new_resource.name )
     action :create
   end
-  
+
   template "/etc/default/#{new_resource.name}" do
     cookbook "tomcat"
     source "default_tomcat.erb"
     owner "root"
-    group "#{new_resource.user}"
+    group new_resource.user
     variables(:tomcat => new_resource)
     mode "0664"
     if new_resource.manage_config_file
@@ -94,14 +93,40 @@ action :install do
   template "#{new_resource.base}/conf/server.xml" do
     cookbook "tomcat"
     source "server.tomcat#{node['tomcat']['version']}.xml.erb"
-    owner "#{new_resource.user}"
-    group "#{new_resource.user}"
+    owner new_resource.user
+    group new_resource.user
     variables(:tomcat => new_resource)
     mode "0644"
     if new_resource.manage_config_file
       action :create
     else
       action :create_if_missing
+    end
+  end
+
+  # template jmx access and password files 
+  unless new_resource.jmx_access.empty?
+    # default to a base value unless specified
+    if new_resource.jmx_access_file.empty?
+      new_resource.jmx_access_file = "#{new_resource.base}/conf/jmxremote.access"
+    end
+    file new_resource.jmx_access_file do
+      content new_resource.jmx_access
+      owner new_resource.user
+      group new_resource.user
+      mode "0700"
+    end
+  end
+
+  unless new_resource.jmx_password.empty?
+    if new_resource.jmx_password_file.empty?
+      new_resource.jmx_password_file = "#{new_resource.base}/conf/jmxremote.password"
+    end
+    file new_resource.jmx_password_file do
+      content new_resource.jmx_password
+      owner new_resource.user
+      group new_resource.user
+      mode "0700"
     end
   end
   
