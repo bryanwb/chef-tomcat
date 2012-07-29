@@ -167,7 +167,7 @@ function stop() {
       kill -0 `cat $CATALINA_PID` >/dev/null 2>&1
       if [ $? -gt 0 ]; then
         echo "PID file ($CATALINA_PID) found but no matching process was found. Stop aborted."
-        exit 1
+        exit 0
       fi
     else
       echo "\$CATALINA_PID was set ($CATALINA_PID) but the specified file does not exist. Is Tomcat running? Assuming it has stopped and proceeding."
