@@ -13,7 +13,7 @@ Platform:
 
 The following Opscode cookbooks are dependencies:
 
-* java
+* java, ark, maven
 
 
 Attributes
@@ -75,8 +75,6 @@ tomcat
 
 - :install: install
 - :remove: remove the instance
-- :webapps: returns location of the webapps directory, typically for
-  use with a deploy or maven lwrp (coming soon)
 
 # Attribute Parameters
 
@@ -88,8 +86,27 @@ tomcat
 - auto_deploy: defaults to true
 - jvm_opts: Array of options for the JVM
 - jmx_opts: Array of JMX monitoring options
-- webapp_opts: Array of directives passed to a webapp
-- more_opts: crap that doesn't fit anywhere else
+- jmx_access: String containing username and access permissions, will
+  be written to the jmxremote.access file
+- jmx_password: String containing username and password, will
+  be written to the jmxremote.password file
+- jmx_access_file: the file that the access role and permissions will
+  be written to, defaults to `CATALINA_BASE/conf/jmxremote.access`
+- jmx_password_file: the file that the username and password will
+  be written to, defaults to `CATALINA_BASE/conf/jmxremote.password`
+- manage_config_file: whether to update the configuration files
+  /etc/default/app_name, `CATALINA_BASE/conf/server.xml`, and
+  /etc/init.d/app_name after initial creation. If false, those files
+  will not be changed after initial templating. Useful if you have
+  devs who want control of their tomcat instance but don't want to
+  learn chef. Great for massive configuration drift.
+- webapp_opts: (Deprecated) Array of directives passed to a webapp
+- more_opts: (Deprecated) crap that doesn't fit anywhere else
+- service_name: an alternate name for the init script, useful if you are using
+  a clustering tool like Pacemaker or heartbeat to manage the tomcat
+  service
+- clustered: set to true if you do not want the tomcat service to
+  start automatically, defaults to false
 - env: environment variables to export in init script
 - user: user to run the tomcat as
 - shutdown_wait: how long the shutdown script should wait before
@@ -99,28 +116,44 @@ tomcat
 An exception will be thrown if one of the values specified by *_port
 is already in use by another tomcat lwrp
 
-All *_OPTS attributes are combined into the environment variable JAVA_OPTS.
-Duplicate options are removed.
+### Example
 
-# Example
-
-    tomcat "pentaho" do
-      http_port  false
-      https_port "8443"
-      version    "7"
-    end
+```
+tomcat "pentaho" do
+  http_port  false
+  https_port "8443"
+  version    "7"
+end
+```
 
 To deploy a webapp to the new tomcat, you use a deploy resource or a
 maven resource (coming soon).
 
-# Example
+### Example using JMX
 
-   deploy "pentaho" do  
-     deploy_root tomcat['pentaho']['webapps']
-     repository "github.com/bryanwb/pentaho.git"
-     revision   "1.0.2"
-     restart_command tomcat['pentaho'] :restart
-   end
+```
+tomcat "liferay" do
+  user liferay_user
+  action :install
+  jvm_opts node['liferay']['jvm_opts']
+  jmx_opts node['liferay']['jmx_opts']
+  jmx_access node['liferay']['jmx_access']
+  jmx_password node['liferay']['jmx_password']
+end
+```
+
+
+### Clustered configuration
+
+```
+tomcat "liferay" do
+  user liferay_user
+  action :install
+  jvm_opts node['liferay']['jvm_opts']
+  service_name "liferay-tomcat"
+  clustered true
+end
+```
 
 
 TODO
