@@ -15,7 +15,11 @@ CATALINA_PID="/var/run/<%= @tomcat.params["pid_file"] %>"
 JAVA_OPTS="<%= @tomcat.jvm_opts.join(' ') + 
  @tomcat.webapp_opts.join(' ') + " " +
  @tomcat.more_opts.join(' ') %>"
-JMX_OPTS="<%= @tomcat.jmx_opts.join(' ') %>" 
+JMX_OPTS="<%= @tomcat.jmx_opts.join(' ') %> " 
+<% unless @tomcat.jmx_password.empty? -%>
+JMX_OPTS=$JMX_OPTS" <%= "-Dcom.sun.management.jmxremote.access.file=#{@tomcat.jmx_access_file} " %> "
+JMX_OPTS=$JMX_OPTS" <%= "-Dcom.sun.management.jmxremote.password.file=#{@tomcat.jmx_password_file} " %> "
+<% end -%>
 
 <% @tomcat.env.each do |envvar| -%>
 export <%= envvar %>
