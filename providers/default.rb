@@ -116,7 +116,7 @@ action :install do
       content new_resource.jmx_access
       owner new_resource.user
       group new_resource.user
-      mode "0760"
+      mode "0700"
     end
   end
 
