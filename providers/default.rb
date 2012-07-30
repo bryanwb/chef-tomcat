@@ -61,7 +61,9 @@ action :install do
     cookbook_file "#{new_resource.base}/conf/#{tc_file}" do
       cookbook "tomcat"
       source tc_file
+      mode "0775"
       owner new_resource.user
+      group new_resource.user
       action :create
     end
   end
@@ -96,7 +98,7 @@ action :install do
     owner new_resource.user
     group new_resource.user
     variables(:tomcat => new_resource)
-    mode "0644"
+    mode "0664"
     if new_resource.manage_config_file
       action :create
     else
@@ -114,7 +116,7 @@ action :install do
       content new_resource.jmx_access
       owner new_resource.user
       group new_resource.user
-      mode "0700"
+      mode "0760"
     end
   end
 
@@ -126,7 +128,7 @@ action :install do
       content new_resource.jmx_password
       owner new_resource.user
       group new_resource.user
-      mode "0700"
+      mode "0760"
     end
   end
   
