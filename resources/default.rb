@@ -37,14 +37,14 @@ attribute :session_timeout, :kind_of => String, :default => 30
 attribute :host_name, :kind_of => String, :default => "localhost"
 attribute :unpack_wars, :equal_to => [true, false], :default => true
 attribute :auto_deploy, :equal_to => [true, false], :default => true
-attribute :jvm_opts, :kind_of => Array, :default => node['tomcat']['jvm_opts']
-attribute :jmx_opts, :kind_of => Array, :default => node['tomcat']['jmx_opts']
+attribute :jvm_opts, :kind_of => Array, :default => node['tomcat']['jvm_opts'] || ["-Djava.awt.headless=true", "-Xmx128M"]
+attribute :jmx_opts, :kind_of => Array, :default => node['tomcat']['jmx_opts'] || []
 attribute :jmx_access, :kind_of => String, :default => ""
 attribute :jmx_access_file, :kind_of => String, :default => ""
 attribute :jmx_password_file, :kind_of => String, :default => ""
 attribute :jmx_password, :kind_of => String, :default => ""
-attribute :webapp_opts, :kind_of => Array, :default => node['tomcat']['webapp_opts']
-attribute :more_opts, :kind_of => Array, :default => node['tomcat']['more_opts']
+attribute :webapp_opts, :kind_of => Array, :default => node['tomcat']['webapp_opts'] || []
+attribute :more_opts, :kind_of => Array, :default => node['tomcat']['more_opts'] || []
 attribute :env, :kind_of => Array, :default => []
 attribute :user, :kind_of => String, :required => true
 attribute :shutdown_wait, :kind_of => String, :default => "5"
