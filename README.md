@@ -82,6 +82,7 @@ tomcat
 - ajp_port:  port_num or true/false, default to true and 8009
 - shutdown_port: port_num or true/false, default to 8005
 - host_name: name for Host element, defaults to localhost
+- session_timeout: global session timeout set in conf/web.xml
 - unpack_wars: defaults to true
 - auto_deploy: defaults to true
 - jvm_opts: Array of options for the JVM
