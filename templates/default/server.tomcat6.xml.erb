@@ -23,7 +23,7 @@
      define subcomponents such as "Valves" at this level.
      Documentation at /docs/config/server.html
  -->
-<Server port="<%= @tomcat['shutdown_port'].to_s %>" shutdown="SHUTDOWN">
+<Server port="<%= @tomcat.shutdown_port.to_s %>" shutdown="SHUTDOWN">
 
   <!--APR library loader. Documentation at /docs/apr.html -->
   <!--
@@ -70,35 +70,35 @@
          Java HTTP Connector: /docs/config/http.html (blocking & non-blocking)
          Java AJP  Connector: /docs/config/ajp.html
          APR (HTTP/AJP) Connector: /docs/apr.html
-         Define a non-SSL HTTP/1.1 Connector on port <%= @tomcat["port"] %>
+         Define a non-SSL HTTP/1.1 Connector on port <%= @tomcat.http_port.to_s %>
     -->
-    <Connector port="<%= @tomcat["http_port"].to_s %>"
+    <Connector port="<%= @tomcat.http_port.to_s %>"
               protocol="HTTP/1.1" 
               connectionTimeout="20000" 
                URIEncoding="UTF-8"
-              redirectPort="<%= @tomcat["ssl_port"].to_s %>" />
+              redirectPort="<%= @tomcat.ssl_port.to_s %>" />
     <!-- A "Connector" using the shared thread pool-->
     <!--
     <Connector executor="tomcatThreadPool"
-               port="<%= @tomcat["port"] %>" protocol="HTTP/1.1" 
+               port="<%= @tomcat.http_port.to_s %>" protocol="HTTP/1.1" 
                connectionTimeout="20000" 
-               redirectPort="<%= @tomcat["ssl_port"] %>" />
+               redirectPort="<%= @tomcat.ssl_port.to_s %>" />
     -->           
-    <!-- Define a SSL HTTP/1.1 Connector on port <%= @tomcat["ssl_port"] %>
+    <!-- Define a SSL HTTP/1.1 Connector on port <%= @tomcat.ssl_port.to_s %>
          This connector uses the JSSE configuration, when using APR, the 
          connector should be using the OpenSSL style configuration
          described in the APR documentation -->
     <!--    
-    <Connector port="<%= @tomcat["ssl_port"].to_s %>" 
+    <Connector port="<%= @tomcat.ssl_port.to_s %>" 
                protocol="HTTP/1.1" SSLEnabled="true"
                maxThreads="150" scheme="https" secure="true"
                clientAuth="false" sslProtocol="TLS" />
    -->
 
-    <!-- Define an AJP 1.3 Connector on port <%= @tomcat["ajp_port"] %> -->
-    <Connector port="<%= @tomcat["ajp_port"].to_s %>" 
+    <!-- Define an AJP 1.3 Connector on port <%= @tomcat.ajp_port %> -->
+    <Connector port="<%= @tomcat.ajp_port.to_s %>" 
                protocol="AJP/1.3" 
-               redirectPort="<%= @tomcat["ssl_port"].to_s %>" />
+               redirectPort="<%= @tomcat.ssl_port.to_s %>" />
 
 
     <!-- An Engine represents the entry point (within Catalina) that processes
@@ -137,8 +137,8 @@
            Note: XML Schema validation will not work with Xerces 2.2.
        -->
       <Host name="localhost"  appBase="webapps"
-            unpackWARs="<%= @tomcat['unpack_wars'].to_s %>"
-            autoDeploy="<%= @tomcat['auto_deploy'].to_s %>"
+            unpackWARs="<%= @tomcat.unpack_wars.to_s %>"
+            autoDeploy="<%= @tomcat.auto_deploy.to_s %>"
             xmlValidation="false" xmlNamespaceAware="false">
 
         <!-- SingleSignOn valve, share authentication between web applications
