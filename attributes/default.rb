@@ -43,6 +43,9 @@ default["tomcat"]["ajp_port"] = 8009
 default["tomcat"]["shutdown_port"] = 8005
 default["tomcat"]["unpack_wars"] = true
 default["tomcat"]["auto_deploy"] = true
+# use nil for bind address to bind to all interfaces
+# better default is 127.0.0.1
+default["tomcat"]["bind_address"] = nil
 
 # all the *_opts are later combined into JAVA_OPTS
 default["tomcat"]["jvm_opts"] = ["-Xmx128M", "-Djava.awt.headless=true"]

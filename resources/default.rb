@@ -26,6 +26,7 @@ attr_accessor :unpack_wars, :auto_deploy, :jvm_opts, :jmx_opts, :webapp_opts
 attr_accessor  :jmx_access, :jmx_access_file, :jmx_password_file, :jmx_password
 attr_accessor :more_opts, :user, :context_dir, :log_dir, :tmp_dir, :work_dir, :manage_config_file
 attr_accessor :webapp_dir, :base, :pid_file, :use_security_manager, :group, :shutdown_wait
+attr_accessor :bind_address
 
 attribute :service_name, :kind_of => String, :name_attribute => true
 attribute :clustered, :equal_to => [true, false], :default => false
@@ -49,6 +50,7 @@ attribute :env, :kind_of => Array, :default => []
 attribute :user, :kind_of => String, :required => true
 attribute :shutdown_wait, :kind_of => String, :default => "5"
 attribute :manage_config_file, :equal_to => [true, false], :default => false
+attribute :bind_address, :kind_of => String, :default => nil
 
 # we have to set default for the supports attribute
 # in initializer since it is a 'reserved' attribute name
