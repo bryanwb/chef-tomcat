@@ -50,8 +50,6 @@ attribute :user, :kind_of => String, :required => true
 attribute :shutdown_wait, :kind_of => String, :default => "5"
 attribute :manage_config_file, :equal_to => [true, false], :default => false
 attribute :base, :kind_of => String, :default => ""
-  
-end
 
 
 # we have to set default for the supports attribute
