@@ -3,7 +3,7 @@ maintainer_email "cookbooks@opscode.com"
 license          "Apache 2.0"
 description      "Installs/Configures tomcat"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          "0.11.9"
+version          "0.11.10"
 
 %w{ java logrotate ark maven }.each do |cb|
   depends cb
