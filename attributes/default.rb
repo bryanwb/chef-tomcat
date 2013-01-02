@@ -51,7 +51,7 @@ default["tomcat"]["webapp_opts"] = []
 default["tomcat"]["more_opts"] = []
 
 # urls for arks and sha256 checksum for each
-default['tomcat']['6']['url'] = 'http://apache.mirrors.tds.net/tomcat/tomcat-6/v6.0.35/bin/apache-tomcat-6.0.35.tar.gz'
+default['tomcat']['6']['url'] = 'http://archive.apache.org/dist/tomcat/tomcat-6/v6.0.35/bin/apache-tomcat-6.0.35.tar.gz'
 default['tomcat']['6']['checksum'] = 'b28c9cbc2a8ef271df646a50410bab7904953b550697efb5949c9b2d6a9f3d53'
-default['tomcat']['7']['url'] = 'http://apache.mirrors.tds.net/tomcat/tomcat-7/v7.0.32/bin/apache-tomcat-7.0.32.tar.gz'
+default['tomcat']['7']['url'] = 'http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.32/bin/apache-tomcat-7.0.32.tar.gz'
 default['tomcat']['7']['checksum'] = 'c26ae0bc424e2639f5c77eb4d274a026c5a584a404dbdbb247ab6d2c3ebe8258'
