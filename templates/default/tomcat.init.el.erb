@@ -133,6 +133,8 @@ function start() {
 
   shift
 
+  JAVA_OPTS="$JAVA_OPTS $JMX_OPTS"
+
   
   $SU "$TOMCAT_USER" -c "touch $CATALINA_OUT"
   touch "$CATALINA_PID"
@@ -143,7 +145,6 @@ function start() {
 -Dcatalina.base="$CATALINA_BASE" \
 -Dcatalina.home="$CATALINA_HOME" \
 -Djava.io.tmpdir="$CATALINA_TMPDIR" \
-$JMX_OPTS \
 org.apache.catalina.startup.Bootstrap "$@" start \
 >> "$CATALINA_OUT" 2>&1 &
 echo \$! > "$CATALINA_PID"
