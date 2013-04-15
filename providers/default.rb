@@ -57,7 +57,7 @@ action :install do
   end
 
   # don't have a need yet to template these files
-  %w{ catalina.policy catalina.properties logging.properties context.xml tomcat-users.xml }.each do |tc_file|
+  %w{ catalina.policy catalina.properties logging.properties tomcat-users.xml }.each do |tc_file|
     cookbook_file "#{new_resource.base}/conf/#{tc_file}" do
       cookbook "tomcat"
       source tc_file
@@ -67,6 +67,15 @@ action :install do
       action :create
     end
   end
+
+  template "#{new_resource.base}/conf/context.xml" do
+    cookbook node["tomcat"]["context"]["cookbook"]
+    source node["tomcat"]["context"]["template"]
+    owner new_resource.user
+    group new_resource.user
+    mode "0600"
+    action :create
+  end  
 
   template "#{new_resource.base}/conf/web.xml" do
     cookbook "tomcat"

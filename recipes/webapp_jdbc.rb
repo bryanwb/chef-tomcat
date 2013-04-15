@@ -33,7 +33,7 @@ end
 
 template "jdbc context" do
   path "#{t.base}/conf/Catalina/localhost/#{node['tomcat']['application']}.xml"
-  source "context.xml.erb"
+  source "jdbc.context.xml.erb"
   owner node['tomcat']['user']
 end
 

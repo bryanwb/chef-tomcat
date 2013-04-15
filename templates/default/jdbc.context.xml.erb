@@ -1,0 +1,16 @@
+<Context path="/<%= node['tomcat']['application'] %>" debug="0" useHttpOnly="true">
+
+  <Resource name="UserTransaction" auth="Container" type="javax.transaction.UserTransaction"
+  factory="org.objectweb.jotm.UserTransactionFactory" jotm.timeout="60"/>
+  
+
+  <Resource name="jdbc/<%= node['tomcat']['application'].capitalize %>DS" auth="Container"
+            type="javax.sql.DataSource"
+            username="<%= node['tomcat']['jdbc']['user'] %>"
+            password="<%= node['tomcat']['jdbc']['password'] %>"
+            driverClassName="<%= node['tomcat']['jdbc']['driver']['name'] %>"
+            url="<%= node['tomcat']['jdbc']['url'] %>"
+            maxActive="20"
+            validationQuery="select 1"
+            />
+</Context>
