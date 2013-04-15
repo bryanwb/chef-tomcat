@@ -33,6 +33,9 @@ default["tomcat"]["webapp_dir"] = "#{tomcat_base}/webapps"
 default["tomcat"]["pid_file"] = "tomcat#{version}.pid"
 default['tomcat']['shutdown_wait'] = '5'
 
+default["tomcat"]["context"]["cookbook"] = "tomcat"
+default["tomcat"]["context"]["template"] = "context.xml.erb"
+
 # runtime settings
 default["tomcat"]["use_security_manager"] = false
 default["tomcat"]["user"] = "tomcat#{version}"
