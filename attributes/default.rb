@@ -31,7 +31,7 @@ default["tomcat"]["tmp_dir"] = "#{tomcat_base}/temp"
 default["tomcat"]["work_dir"] = "#{tomcat_base}/work"
 default["tomcat"]["webapp_dir"] = "#{tomcat_base}/webapps"
 default["tomcat"]["pid_file"] = "tomcat#{version}.pid"
-default['tomcat']['shutdown_wait'] = '5'
+default['tomcat']['shutdown_wait'] = 5
 
 # runtime settings
 default["tomcat"]["use_security_manager"] = false
