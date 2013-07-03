@@ -4,35 +4,31 @@
 # Local modifications will be overwritten by Chef.
 #
 
-SHUTDOWN_WAIT=<%= @tomcat["shutdown_wait"] %>
-TOMCAT_USER=<%= @tomcat["user"] %>
-TOMCAT_GROUP=<%= @tomcat["group"] %>
+SHUTDOWN_WAIT=<%= @tomcat.shutdown_wait %>
+TOMCAT_USER=<%= @tomcat.user %>
+TOMCAT_GROUP=<%= @tomcat.user %>
 JAVA_HOME=<%= node["java"]["java_home"] %>
-CATALINA_HOME=<%= @tomcat["home"] %>
-CATALINA_BASE=<%= @tomcat["base"] %>
-CATALINA_PID="/var/run/<%= @tomcat["pid_file"] %>"
+CATALINA_HOME=<%= node["tomcat"]["home"] %>
+CATALINA_BASE=<%= @tomcat.base %>
+CATALINA_PID="/var/run/<%= @tomcat.params['pid_file'] %>"
 
-JAVA_OPTS="<%= @tomcat['jvm_opts'].join(' ') + 
- @tomcat['jmx_opts'].join(' ') +  " " +
- @tomcat['webapp_opts'].join(' ') + " " +
- @tomcat['more_opts'].join(' ') %>"
+JAVA_OPTS="<%= @tomcat.jvm_opts.join(' ') %> <%= @tomcat.jmx_opts.join(' ') %> <%= @tomcat.webapp_opts.join(' ') %> <%= @tomcat.more_opts.join(' ') %>"
 
-<% unless @tomcat.has_key?("jmx_password") -%>
-JMX_OPTS=$JMX_OPTS" <%= "-Dcom.sun.management.jmxremote.access.file=#{@tomcat["jmx_access_file"]} " %> "
-JMX_OPTS=$JMX_OPTS" <%= "-Dcom.sun.management.jmxremote.password.file=#{@tomcat["jmx_password_file"]} " %> "
-<% end -%>
+<%- unless @tomcat.jmx_password -%>
+JMX_OPTS=$JMX_OPTS" <%= "-Dcom.sun.management.jmxremote.access.file=#{@tomcat.jmx_access_file} " %> "
+JMX_OPTS=$JMX_OPTS" <%= "-Dcom.sun.management.jmxremote.password.file=#{@tomcat.jmx_password_file} " %> "
+<%- end -%>
 
-
-<% if  @tomcat['env'] -%>
-<% @tomcat['env'].each do |envvar| -%>
+<%- if  @tomcat.env -%>
+<%- @tomcat.env.each do |envvar| -%>
 export <%= envvar %>
-<% end -%>
-<% end -%>
+<%- end -%>
+<%- end -%>
 
 JAVA_ENDORSED_DIRS="$CATALINA_HOME/endorsed"
 
 # Use the Java security manager? (yes/no, default: no)
-TOMCAT6_SECURITY=<%= @tomcat["use_security_manager"] ? "yes" : "no" %>
+TOMCAT6_SECURITY=<%= @tomcat.use_security_manager ? "yes" : "no" %>
 
-CATALINA_TMPDIR=<%= @tomcat["tmp_dir"] %>
+CATALINA_TMPDIR=<%= @tomcat.params['tmp_dir'] %>
 
