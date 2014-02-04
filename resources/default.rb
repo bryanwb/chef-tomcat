@@ -49,6 +49,8 @@ attribute :env, :kind_of => Array, :default => []
 attribute :user, :kind_of => String, :required => true
 attribute :shutdown_wait, :kind_of => String, :default => "5"
 attribute :manage_config_file, :equal_to => [true, false], :default => false
+attribute :base, :kind_of => String, :default => ""
+
 
 # we have to set default for the supports attribute
 # in initializer since it is a 'reserved' attribute name
@@ -56,7 +58,9 @@ def initialize(*args)
   require 'pathname'
   super
   @action = :install
-  catalina_parent = Pathname.new(node['tomcat']['home']).parent.to_s
-  @base = "#{catalina_parent}/#{@name}"
+  if @base == "" then
+    catalina_parent = Pathname.new(node['tomcat']['home']).parent.to_s
+    @base = "#{catalina_parent}/#{@name}"
+  end
   @supports = {:report => true, :exception => true}
 end
