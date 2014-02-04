@@ -81,6 +81,7 @@ tomcat
 - http_port: port_num or true/false, default to true and 8080
 - ajp_port:  port_num or true/false, default to true and 8009
 - shutdown_port: port_num or true/false, default to 8005
+- bind_address: limit above ports to bind only to one IP address if specified
 - host_name: name for Host element, defaults to localhost
 - session_timeout: global session timeout set in conf/web.xml
 - unpack_wars: defaults to true

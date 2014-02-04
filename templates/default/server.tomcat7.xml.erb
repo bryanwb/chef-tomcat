@@ -72,6 +72,9 @@ shutdown="SHUTDOWN">
     -->
     <Connector port="<%= @tomcat.http_port.to_s %>"
               protocol="HTTP/1.1" 
+              <% if not @tomcat.bind_address.nil? -%>
+			  address="<%= @tomcat.bind_address.to_s %>"
+			  <% end -%>
               connectionTimeout="20000" 
                URIEncoding="UTF-8"
               redirectPort="<%= @tomcat.ssl_port.to_s %>" />
@@ -79,6 +82,9 @@ shutdown="SHUTDOWN">
     <!--
     <Connector executor="tomcatThreadPool"
                port="8080" protocol="HTTP/1.1" 
+              <% if not @tomcat.bind_address.nil? -%>
+	 		   address="<%= @tomcat.bind_address.to_s %>"
+			   <% end -%>
                connectionTimeout="20000" 
                redirectPort="8443" />
     -->           
@@ -89,6 +95,9 @@ shutdown="SHUTDOWN">
     <!--
     <Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true"
                maxThreads="150" scheme="https" secure="true"
+              <% if not @tomcat.bind_address.nil? -%>
+		  	   address="<%= @tomcat.bind_address.to_s %>"
+		 	   <% end -%>
                clientAuth="false" sslProtocol="TLS" />
     -->
 
@@ -98,6 +107,9 @@ shutdown="SHUTDOWN">
     -->
    <Connector port="<%= @tomcat.ajp_port.to_s %>" 
                protocol="AJP/1.3" 
+              <% if not @tomcat.bind_address.nil? -%>
+			   address="<%= @tomcat.bind_address.to_s %>"
+			   <% end -%>
                redirectPort="<%= @tomcat.ssl_port.to_s %>" />
 
     <!-- An Engine represents the entry point (within Catalina) that processes
