@@ -30,6 +30,7 @@ if platform? [ "centos","redhat","fedora"]
 end
 
 user node['tomcat']['user']
+group node['tomcat']['group']
 
 directory "/usr/local/tomcat" do
   owner node['tomcat']['user']
